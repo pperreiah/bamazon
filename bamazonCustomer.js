@@ -24,14 +24,6 @@ function queryAllProducts(cb) {
         if (err) throw err;
         console.table(res); //this creates the displayed table
 
-        // // Log all results of the SELECT statement  --but this fails to format the table correctly
-        // console.log("ID" + "|" + " Product Name  " + "|" + " Department Name" + "|" + "Price");
-        // console.log("--|--------------|-----------------|------");
-        // for (var i = 0; i < res.length; i++) {
-        //     console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price);
-        // }
-        // console.log("------------------------------------------------\n\n");
-
         cb(); //call getCustomerOrder()
 
     }); //connection query
@@ -58,17 +50,14 @@ function getCustomerOrder() {
             connection.query("SELECT stock_quantity, price FROM products WHERE item_id = ?", [inquirerResponse.item_id], function(err, results) {
 
                 // if (err) console.error(err);
-
-                console.log(results); //shows correct object is being returned
-                console.log("stock_quantity = " + results.stock_quantity) //shows results.stock_quantity is not accessing the value 
-                console.log("price = " + results.price) //shows results.price is not accessing the value 
-
-                if (results.stock_quantity < inquirerResponse.quantity_request) {
+                var stockqty = results[0].stock_quantity;
+                var pricefix = results[0].price;
+                if (stockqty < inquirerResponse.quantity_request) {
                     console.log("Sorry, we do not have sufficient stock of Item #" + inquirerResponse.item_id + " to  fill your order.");
                 } else {
-                    var newStockQty = results.stock_quantity - inquirerResponse.quantity_request;
+                    var newStockQty = stockqty - inquirerResponse.quantity_request;
                     connection.query('UPDATE products SET stock_quantity = newStockQty WHERE item_id = inquirerResponse.item_id');
-                    console.log("Your order is being filled and will cost $" + results.price * inquirerResponse.quantity_request + ".  Thank you for your business.");
+                    console.log("Your order is being filled and will cost $" + pricefix*inquirerResponse.quantity_request + ".  Thank you for your business.");
                 } //else
 
             }); //connection.query
